@@ -1,6 +1,16 @@
 from sanic import Sanic, response
 from sanic.response import text
 from sanic import json
+import random
+import string
+import os
+
+def generate_name_video(length):
+    characters = string.ascii_letters + string.digits
+    password = ''.join(random.choice(characters) for i in range(length))
+    return password
+
+upload_folder = 'video/'
 
 app = Sanic("MyHelloWorldApp")
 
@@ -12,6 +22,30 @@ async def index(request):
 
     # Отправляем HTML-страницу как ответ
     return response.html(html_content)
+
+@app.route('/account')
+async def account(request):
+    # Открываем файл с HTML-страницей и считываем его содержимое
+    with open('html/account.html', 'r', encoding="UTF-8") as file:
+        html_content = file.read()
+
+    # Отправляем HTML-страницу как ответ
+    return response.html(html_content)
+
+@app.route('/upload', methods=['POST'])
+async def upload_video(request):
+    uploaded_file = request.files.get('video')
+    if not uploaded_file:
+        return response.text('Файл не загружен')
+
+    # Сохраните файл на сервере
+    random_name_video = generate_name_video(10) + ".mp4"
+    file_path = os.path.join(upload_folder, random_name_video)
+
+    with open(file_path, 'wb') as file:
+        file.write(uploaded_file.body)
+
+    return response.text('Файл успешно загружен')
 
 @app.route('/video/prank')
 async def serve_video(request):
