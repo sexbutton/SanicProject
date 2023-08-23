@@ -1,8 +1,40 @@
 import sqlite3
 import random, string
+from sanic import Sanic
 class Database:
+    #session_id = request.cookies.get('session_id')
+    #session_id = str(uuid.uuid4())
+    '''
+    @app.route('/login')
+async def login(request):
+    # В реальной ситуации аутентификация будет проводиться, и здесь
+    # вы будете иметь user_id после успешной аутентификации.
+    user_id = '123'  # Здесь вы должны использовать фактический user_id
+
+    session_id = create_session(user_id)
+    response = redirect('/')
+    response.cookies['session_id'] = session_id
+    return response
+    '''
+    def create_session(session_id, user_id):
+        with sqlite3.connect('database.db') as conn:
+            conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_id)) 
+        return session_id
+    def get_user_id(session_id):
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('SELECT User FROM Sessions WHERE session_id = ?', (session_id,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            return None
     @staticmethod
     def StartDatabase():
+        with sqlite3.connect('database.db') as conn:
+            conn.execute('''CREATE TABLE IF NOT EXISTS Sessions (
+                         session_id TEXT PRIMARY KEY, 
+                         User INTEGER NOT NULL),
+                         FOREIGN KEY (User) REFERENCES Users (id)
+                         ''')
         with sqlite3.connect('database.db') as conn:
             conn.execute('''
                  CREATE TABLE IF NOT EXISTS Users (
