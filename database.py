@@ -27,7 +27,13 @@ async def login(request):
             if row:
                 return row[0]
             return None
-        
+    def LoginUser(Login,Password):
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('SELECT * FROM Users WHERE Login = ? and Password = ?', (Login, Password))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            return None
     def reg_user(SessionId,Login,Password):
         with sqlite3.connect('database.db') as conn:
             conn.execute('INSERT INTO Users (Login, Password, Name, PfpPath) VALUES (?, ?, ?, ?)', (Login, Password, Login, "no-photo.png"))
