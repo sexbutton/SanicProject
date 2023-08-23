@@ -16,9 +16,9 @@ async def login(request):
     response.cookies['session_id'] = session_id
     return response
     '''
-    def create_session(session_id, user_id):
+    def create_session(session_id, user_Login):
         with sqlite3.connect('database.db') as conn:
-            conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_id)) 
+            conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_Login)) 
         return session_id
     def get_user_id(session_id):
         with sqlite3.connect('database.db') as conn:
@@ -27,19 +27,32 @@ async def login(request):
             if row:
                 return row[0]
             return None
+        
+    def reg_user(SessionId,Login,Password):
+        with sqlite3.connect('database.db') as conn:
+            conn.execute('INSERT INTO Users (Login, Password, Name, PfpPath) VALUES (?, ?, ?, ?)', (Login, Password, Login, "no-photo.png"))
+            
+        Database.create_session(SessionId,Login)
+    def get_video_comments(videoid):
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('SELECT * FROM Comments WHERE VideoId = ?', (videoid,))
+            row = cursor.fetchall()
+            if row:
+                return row
+            return None
     @staticmethod
     def StartDatabase():
         with sqlite3.connect('database.db') as conn:
             conn.execute('''CREATE TABLE IF NOT EXISTS Sessions (
                          session_id TEXT PRIMARY KEY, 
-                         User INTEGER NOT NULL),
-                         FOREIGN KEY (User) REFERENCES Users (id)
+                         User TEXT NOT NULL,
+                         FOREIGN KEY (User) REFERENCES Users (Login)
+                         )
                          ''')
         with sqlite3.connect('database.db') as conn:
             conn.execute('''
                  CREATE TABLE IF NOT EXISTS Users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Login TEXT NOT NULL,
+                    Login TEXT NOT NULL PRIMARY KEY,
                     Password TEXT NOT NULL,
                     Name TEXT NOT NULL,
                     Description TEXT,
@@ -52,48 +65,48 @@ async def login(request):
                     Name TEXT NOT NULL,
                     Path TEXT NOT NULL,
                     Description TEXT NOT NULL,
-                    OwnerId INTEGER NOT NULL,
+                    OwnerId TEXT NOT NULL,
                     DateTime DATETIME NOT NULL,
-                    FOREIGN KEY (OwnerId) REFERENCES Users (id)
+                    FOREIGN KEY (OwnerId) REFERENCES Users (Login)
                    )
                 ''')
             conn.execute('''
                  CREATE TABLE IF NOT EXISTS VideoReactions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     VideoId INTEGER NOT NULL,
-                    ReactorId INTEGER NOT NULL,
+                    ReactorId TEXT NOT NULL,
                     IsLike INTEGER NOT NULL,
-                    FOREIGN KEY (VideoId) REFERENCES Videos (id)
-                    FOREIGN KEY (ReactorId) REFERENCES Users (id)
+                    FOREIGN KEY (VideoId) REFERENCES Videos (id),
+                    FOREIGN KEY (ReactorId) REFERENCES Users (Login)
                    )
                 ''')
             conn.execute('''
                  CREATE TABLE IF NOT EXISTS VideoWatches (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    WatcherId INTEGER NOT NULL,
+                    WatcherId TEXT NOT NULL,
                     VideoId INTEGER NOT NULL,
-                    FOREIGN KEY (WatcherId) REFERENCES Users (id)
+                    FOREIGN KEY (WatcherId) REFERENCES Users (Login)
                     FOREIGN KEY (VideoId) REFERENCES Videos (id)
                    )
                 ''')
             conn.execute('''
                  CREATE TABLE IF NOT EXISTS Comments (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    CommentatorId INTEGER NOT NULL,
+                    CommentatorId TEXT NOT NULL,
                     VideoId INTEGER NOT NULL,
                     Text TEXT NOT NULL,
                     DateTime DATETIME NOT NULL,
-                    FOREIGN KEY (CommentatorId) REFERENCES Users (id)
+                    FOREIGN KEY (CommentatorId) REFERENCES Users (Login)
                    )
                 ''')
             conn.execute('''
                  CREATE TABLE IF NOT EXISTS CommentReactions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     CommentId INTEGER NOT NULL,
-                    ReactorId INTEGER NOT NULL,
+                    ReactorId TEXT NOT NULL,
                     IsLike INTEGER NOT NULL,
-                    FOREIGN KEY (CommentId) REFERENCES Comments (id)
-                    FOREIGN KEY (ReactorId) REFERENCES Users (id)
+                    FOREIGN KEY (CommentId) REFERENCES Comments (id),
+                    FOREIGN KEY (ReactorId) REFERENCES Users (Login)
                    )
                 ''')
 Database.StartDatabase()
