@@ -5,23 +5,64 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Саламчик</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .welcome-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .welcome-container p {
+            margin: 10px 0;
+        }
+
+        .welcome-container a {
+            margin: 10px 0;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .welcome-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <script>
     async function Check() {
+        try {
             const response = await fetch('/getUserLogin');
             const data = await response.json();
             document.getElementById('username').textContent = data.Username;
             document.getElementById('password').textContent = data.Password;
+        } catch (error) {
+            console.error(error);
         }
+    }
     document.addEventListener('DOMContentLoaded', Check);
 </script>
 <body>
-    <p>Добро пожаловать, <span id="username">Никто</span></p>
-    <p>Добро пожаловать, <span id="password">Никто</span></p>
-    <a href="/rickroll">Посмотреть пранк</a>
-    <a href="/reset">Выйти из аккаунта</a>
-    <a href="/check">Проверить куки</a>
-    <a href="/login">Войти в аккаунт</a>
-    <a href="/register">Зарегестрироваться</a>
+    <div class="welcome-container">
+        <p>Добро пожаловать, <span id="username">Никто</span></p>
+        <p>Добро пожаловать, <span id="password">Никто</span></p>
+        <a href="/rickroll">Посмотреть пранк</a>
+        <a href="/reset">Выйти из аккаунта</a>
+        <a href="/check">Проверить куки</a>
+        <a href="/login">Войти в аккаунт</a>
+        <a href="/register">Зарегистрироваться</a>
+    </div>
 </body>
 </html>
