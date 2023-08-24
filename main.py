@@ -1,9 +1,11 @@
-from sanic import Sanic, response
+from sanic import Sanic, response, json
 from sanic.response import text
-from sanic import json
 import random
 import string
 import os
+from sanic_session import Session, InMemorySessionInterface
+from database import Database
+
 
 def generate_name_video(length):
     characters = string.ascii_letters + string.digits
@@ -13,6 +15,7 @@ def generate_name_video(length):
 upload_folder = 'video/'
 
 app = Sanic("MyHelloWorldApp")
+
 
 @app.route('/')
 async def index(request):
@@ -52,7 +55,24 @@ async def serve_video(request):
     # Определите логику для поиска и отправки видео-файла
     # в соответствии с переданным video_filename
     video_path = f'video/prank.mp4'
-    return await response.file(video_path)
+    return await response.file_stream(video_path)
+
+@app.route('/reg')
+async def serve_video(request):
+    with open('html/reg.html', 'r', encoding="UTF-8") as file:
+        html_content = file.read()
+
+    # Отправляем HTML-страницу как ответ
+    return response.html(html_content)
+
+@app.route('/login')
+async def serve_video(request):
+    with open('html/login.html', 'r', encoding="UTF-8") as file:
+        html_content = file.read()
+
+    # Отправляем HTML-страницу как ответ
+    return response.html(html_content)
+
 
 @app.route("/rickroll")
 async def rickroll(request):
