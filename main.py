@@ -54,6 +54,11 @@ async def upload_video(request):
         file.write(uploaded_file.body)
 
     return response.text('Файл успешно загружен')
+@app.route('/getUserLogin')
+async def UserLoginServe(request):
+    cookies = str(request.cookies.get('Auth'))
+    response = json({'Username': Database.get_user_id(cookies), 'Password':'Пошел нахуй'})
+    return response
 
 @app.route('/video/prank')
 async def serve_video(request):
@@ -74,11 +79,13 @@ async def reg(request):
 async def register(request):
     cookies = str(request.cookies.get('Auth'))
     if cookies != 'None':
-            response = redirect('/')
-            return response
+        response = redirect('/')
+        return response
     with open('html/reg.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
-        return response.html(html_content)
+        response = html(html_content)
+        return response
+    
     
 @app.route('/log', methods=['POST'])
 async def log(request):

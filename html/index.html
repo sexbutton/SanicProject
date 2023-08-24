@@ -6,7 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Саламчик</title>
 </head>
+<script>
+    async function Check() {
+            const response = await fetch('/getUserLogin');
+            const data = await response.json();
+            document.getElementById('username').textContent = data.Username;
+            document.getElementById('password').textContent = data.Password;
+        }
+    document.addEventListener('DOMContentLoaded', Check);
+</script>
 <body>
+    <p>Добро пожаловать, <span id="username">Никто</span></p>
+    <p>Добро пожаловать, <span id="password">Никто</span></p>
     <a href="/rickroll">Посмотреть пранк</a>
     <a href="/reset">Выйти из аккаунта</a>
     <a href="/check">Проверить куки</a>
