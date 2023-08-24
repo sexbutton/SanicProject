@@ -1,13 +1,12 @@
 from sanic import Sanic, response, json, redirect, html
-from sanic_session import Session
 import random
 import string
 import os
-from sanic_session import Session, InMemorySessionInterface
 from database import Database
 from sanic import Sanic
-from sanic.response import text, HTTPResponse
-from sanic.cookies import Cookie
+from sanic.response import text, html
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from sanic.request import Request
 
 
 
@@ -21,24 +20,41 @@ upload_folder = 'video/'
 
 app = Sanic("MyHelloWorldApp")
 
+# Настройка Jinja2 для Sanic
+env = Environment(
+    loader=FileSystemLoader('templates'),  # Папка с шаблонами
+    autoescape=select_autoescape(['html', 'xml'])
+)
 
 @app.route('/')
 async def index(request):
     # Открываем файл с HTML-страницей и считываем его содержимое
-    with open('html/index.html', 'r', encoding="UTF-8") as file:
+    with open('templates/index.html', 'r', encoding="UTF-8") as file:
+        html_content = file.read()
+
+    # Отправляем HTML-страницу как ответ
+    return response.html(html_content)
+
+
+@app.route('/addvideo')
+async def addvideo(request):
+    # Открываем файл с HTML-страницей и считываем его содержимое
+    with open('templates/addvideo.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
 
     # Отправляем HTML-страницу как ответ
     return response.html(html_content)
 
 @app.route('/account')
-async def account(request):
-    # Открываем файл с HTML-страницей и считываем его содержимое
-    with open('html/account.html', 'r', encoding="UTF-8") as file:
-        html_content = file.read()
-
-    # Отправляем HTML-страницу как ответ
-    return response.html(html_content)
+async def account_info(request: Request):
+    # Здесь вы можете получить информацию об аккаунте и передать ее в шаблон Jinja2
+    template = env.get_template('MyAccount.html')
+    account_data = {
+        'username': 'Ваше имя пользователя',
+        'email': 'example@email.com',
+        # Другие данные об аккаунте
+    }
+    return response.html(template.render(account=account_data))
 
 @app.route('/upload', methods=['POST'])
 async def upload_video(request):
@@ -81,7 +97,7 @@ async def register(request):
     if cookies != 'None':
         response = redirect('/')
         return response
-    with open('html/reg.html', 'r', encoding="UTF-8") as file:
+    with open('templates/reg.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
         response = html(html_content)
         return response
@@ -102,7 +118,7 @@ async def login(request):
     if cookies != 'None':
             response = redirect('/')
             return response
-    with open('html/login.html', 'r', encoding="UTF-8") as file:
+    with open('templates/login.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
         response = html(html_content)
     # Отправляем HTML-страницу как ответ
@@ -118,7 +134,7 @@ async def reset(request):
 
 @app.route("/rickroll")
 async def rickroll(request):
-    with open('html/rickroll.html', 'r', encoding="UTF-8") as file:
+    with open('templates/rickroll.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
     
     # Отправляем HTML-страницу как ответ
