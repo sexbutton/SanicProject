@@ -3,8 +3,8 @@ from sanic.response import text
 import random
 import string
 import os
-from sanic_session import Session, InMemorySessionInterface
-from database import Database
+
+
 
 
 def generate_name_video(length):
@@ -58,7 +58,7 @@ async def serve_video(request):
     return await response.file_stream(video_path)
 
 @app.route('/reg')
-async def serve_video(request):
+async def reg(request):
     with open('html/reg.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
 
@@ -66,7 +66,7 @@ async def serve_video(request):
     return response.html(html_content)
 
 @app.route('/login')
-async def serve_video(request):
+async def login(request):
     with open('html/login.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
 
