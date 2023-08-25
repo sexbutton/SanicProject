@@ -73,7 +73,7 @@ async def upload_video(request):
 
     with open(file_path, 'wb') as file:
         file.write(uploaded_file.body)
-
+    
     return response.text('Файл успешно загружен')
 
 
@@ -111,6 +111,7 @@ async def log(request):
         response = redirect('/')
         response.cookies['Auth'] = cookiestring
         return response
+
 @app.route('/login')
 async def login(request):
     cookies = str(request.cookies.get('Auth'))
