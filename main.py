@@ -1,4 +1,4 @@
-from sanic import Sanic, response, json, redirect, html
+from sanic import Sanic, response, json, redirect, html, file
 import random
 import string
 import os
@@ -7,8 +7,6 @@ from sanic import Sanic
 from sanic.response import text, html
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sanic.request import Request
-
-
 
 
 def generate_random_string(length):
@@ -84,11 +82,12 @@ async def serve_video(request):
 @app.route('/reg', methods=['POST'])
 async def reg(request):
         cookiestring = generate_random_string(10)
-        Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'))
+        Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
         response = redirect('/')
         response.cookies['Auth'] = cookiestring
         
         return response
+
 @app.route('/register')
 async def register(request):
     cookies = str(request.cookies.get('Auth'))
@@ -99,7 +98,6 @@ async def register(request):
         html_content = file.read()
         response = html(html_content)
         return response
-    
     
 @app.route('/log', methods=['POST'])
 async def log(request):
