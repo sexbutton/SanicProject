@@ -21,14 +21,14 @@ async def login(request):
             conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_Login)) 
         return session_id
 
-    def GetUserData(UserId):
+    def GetUserData(UserId : str):
         with sqlite3.connect('database.db') as conn:
-            cursor = conn.execute('SELECT * FROM Users WHERE Login = ?', (UserId))
+            cursor = conn.execute('SELECT Login, Name, Description, PfpPath FROM Users WHERE Login = ?', (UserId,))
             row = cursor.fetchone()
             if row:
-                return row[0]
+                return {'Login':row[0], 'Name':row[1], 'Description':row[2], 'PfpPath':row[3]}
             return None
-            
+
     def get_user_id(session_id):
         with sqlite3.connect('database.db') as conn:
             cursor = conn.execute('SELECT User FROM Sessions WHERE session_id = ?', (session_id,))

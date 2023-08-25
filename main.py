@@ -50,7 +50,8 @@ async def account_info(request: Request):
     # Здесь вы можете получить информацию об аккаунте и передать ее в шаблон Jinja2
     template = env.get_template('MyAccount.html')
     cookies = str(request.cookies.get('Auth'))
-    account_data = Database.GetUserData(str(Database.get_user_id(cookies)["Login"]))
+    account_data = Database.GetUserData(Database.get_user_id(cookies))
+    print(account_data)
     return response.html(template.render(account=account_data))
 
 @app.route('/upload', methods=['POST'])
