@@ -26,10 +26,42 @@ env = Environment(
 )
 
 @app.route('/video/<filename:str>')
+async def VideoPage(request, filename):
+    if os.path.exists('video/'+filename):
+        Data = {
+             'videoname': filename
+        }
+        #Пример рекомендаций
+        Data['recommended_videos'] = [
+        {
+            'name': 'Рикролл :D',
+            'link': 'prank.mp4',
+            'image': 'Rickroll.jpg'
+        },
+        {
+            'name': 'Рикролл :D',
+            'link': 'prank.mp4',
+            'image': 'no-photo.png'
+        },
+        {
+            'name': 'Рикролл :D',
+            'link': 'prank.mp4',
+            'image': 'maxresdefault.jpg'
+        }]
+        template = env.get_template('video.html')
+        # Отправляем HTML-страницу как ответ
+        return response.html(template.render(data = Data))
+    
+    with open('templates/NotFound.html', 'r', encoding="UTF-8") as file:
+        html_content = file.read()
+    # Отправляем HTML-страницу как ответ
+    return response.html(html_content)
+
+@app.route('/servevideo/<filename:str>')
 async def serve_video(request, filename):
     return await response.file_stream('video/'+filename)
 
-@app.route('/images/<filename:str>')
+@app.route('/image/<filename:str>')
 async def serve_image(request, filename):
     return await response.file_stream('Images/'+filename)
      
@@ -73,7 +105,7 @@ async def upload_video(request):
 
     with open(file_path, 'wb') as file:
         file.write(uploaded_file.body)
-
+    
     return response.text('Файл успешно загружен')
 
 def validationpassword(password:str, passwordrepeat:str):
@@ -109,11 +141,21 @@ async def reg(request):
     cookiestring = generate_random_string(10)
     while(Database.CookieExists(cookiestring)):
         cookiestring = generate_random_string(10)
+<<<<<<< HEAD
     Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
     response = redirect('/')
     response.cookies['Auth'] = cookiestring
     
     return response
+=======
+        while not Database.CookieExists(cookiestring):
+             cookiestring = generate_random_string(10)
+        Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
+        response = redirect('/')
+        response.cookies['Auth'] = cookiestring
+        
+        return response
+>>>>>>> a3326c9849248335af5c618e928d4a5ce53d6d8f
 
 @app.route('/register')
 async def register(request):
@@ -129,7 +171,7 @@ async def register(request):
 @app.route('/log', methods=['POST'])
 async def log(request):
         cookiestring = generate_random_string(10)
-        while(Database.CookieExists(cookiestring)):
+        while not Database.CookieExists(cookiestring):
              cookiestring = generate_random_string(10)
         Login = request.form.get('username')
         if Database.LoginUser(Login,request.form.get('password')) != None:
@@ -137,6 +179,7 @@ async def log(request):
         response = redirect('/')
         response.cookies['Auth'] = cookiestring
         return response
+
 @app.route('/login')
 async def login(request):
     cookies = str(request.cookies.get('Auth'))
@@ -156,14 +199,6 @@ async def reset(request):
     response = text("Reset")
     response.cookies['Auth'] = None
     return response
-
-@app.route("/rickroll")
-async def rickroll(request):
-    with open('templates/rickroll.html', 'r', encoding="UTF-8") as file:
-        html_content = file.read()
-    
-    # Отправляем HTML-страницу как ответ
-    return response.html(html_content)
 
 if __name__ == "__main__":
 

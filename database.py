@@ -1,6 +1,7 @@
 import sqlite3
 import random, string
 from sanic import Sanic
+import datetime
 class Database:
     #session_id = request.cookies.get('session_id')
     #session_id = str(uuid.uuid4())
@@ -20,6 +21,18 @@ async def login(request):
         if(Database.GetUserData(cookiestring)!=None):
             return False
         else: return True
+
+    def LoginExists(Login):
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('Select Login From Users Where Login = ?' (Login,)) 
+            row = cursor.fetchone()
+            if row:
+                return True
+            return False
+
+    def AddVideo(Name, Path, Description, OwnerLogin):
+        with sqlite3.connect('database.db') as conn:
+            conn.execute('INSERT INTO Videos (Name, Path, Description, OwnerId, DateTime) VALUES (?, ?, ?, ?, ?)', (Name, Path, Description, OwnerLogin, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
     def create_session(session_id, user_Login):
         with sqlite3.connect('database.db') as conn:
