@@ -9,6 +9,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sanic.request import Request
 
 
+
 def generate_random_string(length):
     characters = string.ascii_letters + string.digits
     password = ''.join(random.choice(characters) for i in range(length))
@@ -80,6 +81,8 @@ async def upload_video(request):
 
 @app.route('/reg', methods=['POST'])
 async def reg(request):
+        
+
         cookiestring = generate_random_string(10)
         while(Database.CookieExists(cookiestring)):
              cookiestring = generate_random_string(10)
