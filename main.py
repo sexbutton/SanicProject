@@ -59,7 +59,6 @@ async def account_info(request: Request):
     template = env.get_template('MyAccount.html')
     cookies = str(request.cookies.get('Auth'))
     account_data = Database.GetUserData(Database.get_user_id(cookies))
-    print(account_data)
     return response.html(template.render(account=account_data))
 
 @app.route('/upload', methods=['POST'])
@@ -77,20 +76,44 @@ async def upload_video(request):
 
     return response.text('Файл успешно загружен')
 
+def validationpassword(password:str, passwordrepeat:str):
+    len_password = False
+    if len(password) < 8:
+        len_password = False
+    else:
+        len_password = True
 
+    digits_in_password = True
+    # Проверка наличия цифр в пароле
+    if not any(char.isdigit() for char in password):
+        digits_in_password = False
+
+    char_in_password = True
+    # Проверка наличия букв в пароле
+    if not any(char.isalpha() for char in password):
+        char_in_password = False
+
+    punctuation_in_password = True
+    # Проверка наличия символов пунктуации в пароле
+    if not any(char in string.punctuation for char in password):
+        punctuation_in_password = False
+
+    checkpassword = True
+    if password != passwordrepeat:
+        checkpassword = False
+    
+    return len_password and digits_in_password and char_in_password and punctuation_in_password and checkpassword
 
 @app.route('/reg', methods=['POST'])
 async def reg(request):
-        
-
+    cookiestring = generate_random_string(10)
+    while(Database.CookieExists(cookiestring)):
         cookiestring = generate_random_string(10)
-        while(Database.CookieExists(cookiestring)):
-             cookiestring = generate_random_string(10)
-        Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
-        response = redirect('/')
-        response.cookies['Auth'] = cookiestring
-        
-        return response
+    Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
+    response = redirect('/')
+    response.cookies['Auth'] = cookiestring
+    
+    return response
 
 @app.route('/register')
 async def register(request):
@@ -98,7 +121,7 @@ async def register(request):
     if cookies != 'None':
         response = redirect('/')
         return response
-    with open('templates/reg.html', 'r', encoding="UTF-8") as file:
+    with open('templates/register.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
         response = html(html_content)
         return response
