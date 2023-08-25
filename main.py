@@ -26,10 +26,42 @@ env = Environment(
 )
 
 @app.route('/video/<filename:str>')
+async def VideoPage(request, filename):
+    if os.path.exists('video/'+filename):
+        Data = {
+             'videoname': filename
+        }
+        #Пример рекомендаций
+        Data['recommended_videos'] = [
+        {
+            'name': 'Рикролл :D',
+            'link': 'prank.mp4',
+            'image': 'Rickroll.jpg'
+        },
+        {
+            'name': 'Рикролл :D',
+            'link': 'prank.mp4',
+            'image': 'no-photo.png'
+        },
+        {
+            'name': 'Рикролл :D',
+            'link': 'prank.mp4',
+            'image': 'maxresdefault.jpg'
+        }]
+        template = env.get_template('video.html')
+        # Отправляем HTML-страницу как ответ
+        return response.html(template.render(data = Data))
+    
+    with open('templates/NotFound.html', 'r', encoding="UTF-8") as file:
+        html_content = file.read()
+    # Отправляем HTML-страницу как ответ
+    return response.html(html_content)
+
+@app.route('/servevideo/<filename:str>')
 async def serve_video(request, filename):
     return await response.file_stream('video/'+filename)
 
-@app.route('/images/<filename:str>')
+@app.route('/image/<filename:str>')
 async def serve_image(request, filename):
     return await response.file_stream('Images/'+filename)
      
@@ -134,14 +166,6 @@ async def reset(request):
     response = text("Reset")
     response.cookies['Auth'] = None
     return response
-
-@app.route("/rickroll")
-async def rickroll(request):
-    with open('templates/rickroll.html', 'r', encoding="UTF-8") as file:
-        html_content = file.read()
-    
-    # Отправляем HTML-страницу как ответ
-    return response.html(html_content)
 
 if __name__ == "__main__":
 
