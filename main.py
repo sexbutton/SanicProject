@@ -2,7 +2,7 @@ from sanic import Sanic, response, json, redirect, html
 import random
 import string
 import os
-from database import Database
+from database import *
 from sanic import Sanic
 from sanic.response import text, html
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -49,11 +49,8 @@ async def addvideo(request):
 async def account_info(request: Request):
     # Здесь вы можете получить информацию об аккаунте и передать ее в шаблон Jinja2
     template = env.get_template('MyAccount.html')
-    account_data = {
-        'username': 'Ваше имя пользователя',
-        'email': 'example@email.com',
-        # Другие данные об аккаунте
-    }
+    cookies = str(request.cookies.get('Auth'))
+    account_data = Database.GetUserData(str(Database.get_user_id(cookies)["Login"]))
     return response.html(template.render(account=account_data))
 
 @app.route('/upload', methods=['POST'])
