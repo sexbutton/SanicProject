@@ -25,6 +25,15 @@ env = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
+@app.route('/video/<filename:str>')
+async def serve_video(request, filename):
+    return await response.file_stream('video/'+filename)
+
+@app.route('/images/<filename:str>')
+async def serve_image(request, filename):
+    return await response.file_stream('Images/'+filename)
+     
+
 @app.route('/')
 async def index(request):
     # Открываем файл с HTML-страницей и считываем его содержимое
@@ -67,24 +76,16 @@ async def upload_video(request):
         file.write(uploaded_file.body)
 
     return response.text('Файл успешно загружен')
-@app.route('/getUserLogin')
-async def UserLoginServe(request):
-    cookies = str(request.cookies.get('Auth'))
-    response = json({'Username': Database.get_user_id(cookies), 'Password':'Пошел нахуй'})
-    return response
 
-@app.route('/video/prank')
-async def serve_video(request):
-    # Определите логику для поиска и отправки видео-файла
-    # в соответствии с переданным video_filename
-    video_path = f'video/prank.mp4'
-    return await response.file_stream(video_path)
+
 
 @app.route('/reg', methods=['POST'])
 async def reg(request):
         
 
         cookiestring = generate_random_string(10)
+        while(Database.CookieExists(cookiestring)):
+             cookiestring = generate_random_string(10)
         Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
         response = redirect('/')
         response.cookies['Auth'] = cookiestring
@@ -105,6 +106,8 @@ async def register(request):
 @app.route('/log', methods=['POST'])
 async def log(request):
         cookiestring = generate_random_string(10)
+        while(Database.CookieExists(cookiestring)):
+             cookiestring = generate_random_string(10)
         Login = request.form.get('username')
         if Database.LoginUser(Login,request.form.get('password')) != None:
              Database.create_session(cookiestring, Login)

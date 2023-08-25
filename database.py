@@ -16,6 +16,11 @@ async def login(request):
     response.cookies['session_id'] = session_id
     return response
     '''
+    def CookieExists(cookiestring):
+        if(Database.GetUserData(cookiestring)!=None):
+            return False
+        else: return True
+
     def create_session(session_id, user_Login):
         with sqlite3.connect('database.db') as conn:
             conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_Login)) 
