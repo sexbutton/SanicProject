@@ -141,13 +141,6 @@ async def reg(request):
     cookiestring = generate_random_string(10)
     while(Database.CookieExists(cookiestring)):
         cookiestring = generate_random_string(10)
-<<<<<<< HEAD
-    Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
-    response = redirect('/')
-    response.cookies['Auth'] = cookiestring
-    
-    return response
-=======
         while not Database.CookieExists(cookiestring):
              cookiestring = generate_random_string(10)
         Database.reg_user(cookiestring, request.form.get('username'), request.form.get('password'), request.form.get('nickname'))
@@ -155,7 +148,6 @@ async def reg(request):
         response.cookies['Auth'] = cookiestring
         
         return response
->>>>>>> a3326c9849248335af5c618e928d4a5ce53d6d8f
 
 @app.route('/register')
 async def register(request):
