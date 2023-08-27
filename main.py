@@ -119,48 +119,40 @@ async def account_info(request: Request):
     account_data = Database.GetUserData(Database.get_user_id(cookies))
     return response.html(template.render(account=account_data))
 
-def get_random_frame(video_path):
-    cap = cv2.VideoCapture(video_path)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    random_frame_number = random.randint(0, frame_count - 1)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, random_frame_number)
-    ret, frame = cap.read()
-    cap.release()
-    return frame
-
 @app.route('/videoupload', methods=['POST'])
 async def upload_video(request):
     uploaded_videofile = request.files.get('video')
     uploaded_videoimage = request.files.get('image')
     uploaded_videoname = request.form.get('name')
     uploaded_videodesc = request.form.get('desc')
-    
     if not uploaded_videofile:
-        return text('Файл не загружен')
-    
-    # Сохраните видеофайл на сервере
+        return response.text('Файл не загружен')
+
+    # Сохраните файл на сервере
     random_name_video = generate_random_string(10)
-    video_file_path = os.path.join('video/', random_name_video + ".mp4")
-    
-    with open(video_file_path, 'wb') as file:
+    file_path = os.path.join('video/', random_name_video + ".mp4")
+
+    with open(file_path, 'wb') as file:
         file.write(uploaded_videofile.body)
-    if uploaded_videoimage.name == '':
-        # Генерируем случайный скриншот из видео и сохраняем его как изображение
-        random_screenshot_path = os.path.join('Images/', random_name_video + ".png")
-        screenshot = get_random_frame(video_file_path)
-        cv2.imwrite(random_screenshot_path, screenshot)
+
+    if not uploaded_videoimage:
+        #Если пользак не загрузил фотку для видео - берем рандомный кадр из видоса
+        cap = cv2.VideoCapture(file_path)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        random_frame_number = random.randint(0, frame_count - 1)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, random_frame_number)
+        ret, frame = cap.read()
+        cap.release()
+        random_screenshot_path = 'Images/'+random_name_video + ".png"
+        cv2.imwrite(random_screenshot_path, frame)
     else:
-        # Сохраняем загруженное изображение для видео
-        image_file_path = os.path.join('Images/', random_name_video + ".png")
-        with open(image_file_path, 'wb') as file:
-            file.write(uploaded_videoimage.body)
-    
-    # Добавляем информацию о видео в базу данных
+        file_path = os.path.join('Images/', random_name_video + ".png")
+        with open(file_path, 'wb') as file:
+            file.write(uploaded_videofile.body)
     print(request.cookies.get('Auth'))
     print(Database.get_user_id(request.cookies.get('Auth')))
     Database.AddVideo(uploaded_videoname, random_name_video, uploaded_videodesc, Database.get_user_id(request.cookies.get('Auth')))
-    
-    return text('Файл успешно загружен')
+    return response.text('Файл успешно загружен')
     
 
 def validationpassword(password:str, passwordrepeat:str):
