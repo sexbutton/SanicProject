@@ -32,7 +32,7 @@ async def login(request):
 
     def AddVideo(Name, Path, Description, OwnerLogin):
         with sqlite3.connect('database.db') as conn:
-            conn.execute('INSERT INTO Videos (Name, Path, Description, OwnerId, DateTime) VALUES (?, ?, ?, ?, ?)', (Name, Path, Description, OwnerLogin, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            conn.execute('INSERT INTO Videos (Name, Path, ImagePath, Description, OwnerId, DateTime) VALUES (?, ?, ?, ?, ?, ?)', (Name, Path+'.mp4',Path+'.png', Description, OwnerLogin, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
     def create_session(session_id, user_Login):
         with sqlite3.connect('database.db') as conn:
@@ -97,6 +97,7 @@ async def login(request):
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Name TEXT NOT NULL,
                     Path TEXT NOT NULL,
+                    ImagePath TEXT NOT NULL,
                     Description TEXT NOT NULL,
                     OwnerId TEXT NOT NULL,
                     DateTime DATETIME NOT NULL,
