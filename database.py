@@ -38,7 +38,7 @@ async def login(request):
         with sqlite3.connect('database.db') as conn:
             conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_Login)) 
         return session_id
-
+    
     def GetUserData(UserId : str):
         with sqlite3.connect('database.db') as conn:
             cursor = conn.execute('SELECT Login, Name, Description, PfpPath FROM Users WHERE Login = ?', (UserId,))
