@@ -83,81 +83,53 @@
 
             <input type="nickname" id="nickname" name="nickname" required placeholder="Введите никнейм">
 
-            <input type="submit" id = "checkPassword" value="ЛессГоу" onclick="validatePassword" disabled >
+            <input type="submit" id = "checkPassword" value="ЛессГоу" onclick="validatePassword" disabled>
         </form>
     </div>
 
-    <script>
-        var username = document.getElementById('username');
-        var passwordInput = document.getElementById('passwordInput');
-        var passwordRepeat = document.getElementById('passwordRepeat');
-        var nickname = document.getElementById('nickname');
+    <script>const username = document.getElementById('username');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordRepeat = document.getElementById('passwordRepeat');
+        const nickname = document.getElementById('nickname');
 
-        usernameFlag = false
+        let usernameFlag = false;
+        let passwordInputFlag = false;
+        let passwordRepeatFlag = false;
+        let nicknameFlag = false;
+
         username.addEventListener('input', function() {
-            var usernameValue = username.value;
+            const usernameValue = username.value;
+            usernameFlag = usernameValue.length > 0;
+            updateValidationStyles();
+        });
 
-            if (usernameValue.length > 0) 
-            {
-                username.style.boxShadow = '0 0 10px green'; // Зеленая тень, если есть введенный текст
-            } 
-            else 
-            {
-                username.style.boxShadow = '0 0 10px red'; // Серая тень, если нет введенного текста
-            }
-            checkPassword()
-        })
-        passwordInputFlag = false
         passwordInput.addEventListener('input', function() {
-            var passwordInputValue = passwordInput.value;
-            var passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+            const passwordInputValue = passwordInput.value;
+            const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+            passwordInputFlag = passwordPattern.test(passwordInputValue);
+            updateValidationStyles();
+        });
 
-            if (passwordPattern.test(passwordInputValue)) {
-                passwordInput.style.boxShadow = '0 0 10px green'; // Пароль прошел валидацию
-                passwordInputFlag = true
-            } 
-            else {
-                passwordInput.style.boxShadow = '0 0 10px red'; // Устанавливаем границу красным
-                passwordInputFlag = false
-            }
-            checkPassword()
-        })
-        passwordRepeatFlag = false
         passwordRepeat.addEventListener('input', function() {
-            var passwordRepeatValue = passwordRepeat.value;
+            const passwordRepeatValue = passwordRepeat.value;
+            passwordRepeatFlag = passwordRepeatValue === passwordInput.value;
+            updateValidationStyles();
+        });
 
-            if (passwordRepeatValue == passwordRepeat.value) {
-                passwordRepeat.style.boxShadow = '0 0 10px green'; // Пароль прошел валидацию
-                passwordRepeatFlag = true
-            } 
-            else {
-                passwordRepeat.style.boxShadow = '0 0 10px red'; // Устанавливаем границу красным
-                passwordRepeatFlag = false
-            }
-            checkPassword()
-        })
-
-        nicknameFlag = false
         nickname.addEventListener('input', function() {
-            var nicknameValue = nickname.value;
+            const nicknameValue = nickname.value;
+            nicknameFlag = nicknameValue.length > 0;
+            updateValidationStyles();
+        });
 
-            if (nicknameValue > 0) {
-                nickname.style.boxShadow = '0 0 10px green'; // Пароль прошел валидацию
-                nicknameFlag = true
-            } 
-            else {
-                nickname.style.boxShadow = '0 0 10px red'; // Устанавливаем границу красным
-                nicknameFlag = false
-            }
-            checkPassword()
-        })
-        
-        function checkPassword(){
-            if (usernameFlag && passwordInputFlag && passwordRepeatFlag && nicknameFlag) {
-                document.getElementById('checkPassword').disabled = false
-            }
-        }
-        
-    </script>
+        function updateValidationStyles() {
+            username.style.boxShadow = usernameFlag ? '0 0 10px green' : '0 0 10px red';
+            passwordInput.style.boxShadow = passwordInputFlag ? '0 0 10px green' : '0 0 10px red';
+            passwordRepeat.style.boxShadow = passwordRepeatFlag ? '0 0 10px green' : '0 0 10px red';
+            nickname.style.boxShadow = nicknameFlag ? '0 0 10px green' : '0 0 10px red';
+
+            const checkPasswordButton = document.getElementById('checkPassword');
+            checkPasswordButton.disabled = !(usernameFlag && passwordInputFlag && passwordRepeatFlag && nicknameFlag);
+        }</script>
 </body>
 </html>
