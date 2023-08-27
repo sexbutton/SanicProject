@@ -96,8 +96,10 @@ async def index(request):
     with open('templates/index.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
 
-    # Отправляем HTML-страницу как ответ
-    return response.html(html_content)
+    Data = {"auth":Database.get_user_id(request.cookies.get('Auth')), 'picture': Database.GetUserData(Database.get_user_id(request.cookies.get('Auth')))["PfpPath"]}
+    print(Database.GetUserData(Database.get_user_id(request.cookies.get('Auth')))["PfpPath"])
+    template = env.get_template('index.html')
+    return response.html(template.render(data = Data))
 
 
 @app.route('/addvideo')
@@ -109,7 +111,7 @@ async def addvideo(request):
     # Отправляем HTML-страницу как ответ
     return response.html(html_content)
 
-@app.route('/account')
+@app.route('/profile')
 async def account_info(request: Request):
     # Здесь вы можете получить информацию об аккаунте и передать ее в шаблон Jinja2
     template = env.get_template('MyAccount.html')
