@@ -96,10 +96,14 @@ async def index(request):
     with open('templates/index.html', 'r', encoding="UTF-8") as file:
         html_content = file.read()
 
-    Data = {"auth":Database.get_user_id(request.cookies.get('Auth')), 'picture': Database.GetUserData(Database.get_user_id(request.cookies.get('Auth')))["PfpPath"]}
-    print(Database.GetUserData(Database.get_user_id(request.cookies.get('Auth')))["PfpPath"])
-    template = env.get_template('index.html')
-    return response.html(template.render(data = Data))
+    if Database.get_user_id(request.cookies.get('Auth')) != None: 
+        Data = {"auth":Database.get_user_id(request.cookies.get('Auth')), 'picture': Database.GetUserData(Database.get_user_id(request.cookies.get('Auth')))["PfpPath"]}
+        print(Database.GetUserData(Database.get_user_id(request.cookies.get('Auth')))["PfpPath"])
+        template = env.get_template('index.html')
+        return response.html(template.render(data = Data))
+    else:
+        template = env.get_template('index.html')
+        return response.html(html_content)
 
 
 @app.route('/addvideo')
