@@ -17,6 +17,34 @@ async def login(request):
     response.cookies['session_id'] = session_id
     return response
     '''
+    def GetAllVideosByOwnerId(OwnerId):
+        videos = []
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('SELECT Name, Path, ImagePath, Description, OwnerId, DateTime FROM Videos WHERE OwnerId = ?', (OwnerId,))
+            rows = cursor.fetchall()
+            for row in rows:
+                video = {
+                    'Name': row[0],
+                    'Path': row[1],
+                    'ImagePath': row[2],
+                    'Description': row[3],
+                    'OwnerId':row[4], 
+                    'DateTime':datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S")
+                }
+                videos.append(video)
+        return videos
+    def GetVideoById(id):
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('SELECT Name, Path, ImagePath, Description, OwnerId, DateTime FROM Videos WHERE id = ?', (id,))
+            row = cursor.fetchone()
+            if row:
+                return {'Name':row[0], 'Path':row[1], 'ImagePath':row[2],'Description':row[3],'OwnerId':row[4], 'DateTime':datetime.datetime.strptime(row[5], "%Y-%m-%d %H:%M:%S")}
+            return None
+    def GetRandomVideo():
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.execute('SELECT COUNT() FROM Videos')
+            row = cursor.fetchone()
+            Database.GetVideoById(random.random(int(conn.execute('SELECT id FROM Videos').fetchone()[0]),int(row[0]-1)))
     def CookieExists(cookiestring):
         if(Database.GetUserData(cookiestring)!=None):
             return False
@@ -38,7 +66,7 @@ async def login(request):
         with sqlite3.connect('database.db') as conn:
             conn.execute('INSERT INTO Sessions (session_id, User) VALUES (?, ?)', (session_id, user_Login)) 
         return session_id
-
+    
     def GetUserData(UserId : str):
         with sqlite3.connect('database.db') as conn:
             cursor = conn.execute('SELECT Login, Name, Description, PfpPath FROM Users WHERE Login = ?', (UserId,))
