@@ -1,5 +1,6 @@
 from sanic import Sanic, response, json, redirect, html, file
 import random
+import cv2
 import string
 import os
 from database import *
@@ -15,7 +16,6 @@ def generate_random_string(length):
     password = ''.join(random.choice(characters) for i in range(length))
     return password
 
-upload_folder = 'video/'
 
 app = Sanic("MyHelloWorldApp")
 
@@ -117,20 +117,41 @@ async def account_info(request: Request):
     account_data = Database.GetUserData(Database.get_user_id(cookies))
     return response.html(template.render(account=account_data))
 
-@app.route('/upload', methods=['POST'])
+@app.route('/videoupload', methods=['POST'])
 async def upload_video(request):
-    uploaded_file = request.files.get('video')
-    if not uploaded_file:
+    uploaded_videofile = request.files.get('video')
+    uploaded_videoimage = request.files.get('image')
+    uploaded_videoname = request.form.get('name')
+    uploaded_videodesc = request.form.get('desc')
+    if not uploaded_videofile:
         return response.text('Файл не загружен')
 
     # Сохраните файл на сервере
-    random_name_video = generate_random_string(10) + ".mp4"
-    file_path = os.path.join(upload_folder, random_name_video)
+    random_name_video = generate_random_string(10)
+    file_path = os.path.join('video/', random_name_video + ".mp4")
 
     with open(file_path, 'wb') as file:
-        file.write(uploaded_file.body)
-    
+        file.write(uploaded_videofile.body)
+
+    if not uploaded_videoimage:
+        #Если пользак не загрузил фотку для видео - берем рандомный кадр из видоса
+        cap = cv2.VideoCapture(file_path)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        random_frame_number = random.randint(0, frame_count - 1)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, random_frame_number)
+        ret, frame = cap.read()
+        cap.release()
+        random_screenshot_path = 'Images/'+random_name_video + ".png"
+        cv2.imwrite(random_screenshot_path, frame)
+    else:
+        file_path = os.path.join('Images/', random_name_video + ".png")
+        with open(file_path, 'wb') as file:
+            file.write(uploaded_videofile.body)
+    print(request.cookies.get('Auth'))
+    print(Database.get_user_id(request.cookies.get('Auth')))
+    Database.AddVideo(uploaded_videoname, random_name_video, uploaded_videodesc, Database.get_user_id(request.cookies.get('Auth')))
     return response.text('Файл успешно загружен')
+    
 
 def validationpassword(password:str, passwordrepeat:str):
     len_password = False
